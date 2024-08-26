@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="description"
+          content="JsSpim is an online MIPS32 simulator based on Prof. James Larus's Spim. It supports breakpoints, custom execution speed, ASCII memory view, highlight on changed registers/memory and radix display for memory.">
+    <meta name="author" content="Shawn Zhong">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords"
+          content="spim, qtspim, simulator, mips, mips32, cpu, emulator, assembler, compiler, instruction, register, execution">
+
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/xcode.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <title>JsSpim - Online MIPS32 Simulator Based on Spim</title>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-51728620-4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+        gtag('config', 'UA-51728620-4');
+    </script>
+
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light" id="toolbar">
+    <div class="form-inline">
+        <div>Please choose a <a href="./tests" target="_blank">MIPS
+            assembly file</a>: &nbsp
+        </div>
+        <div>
+            <select id="file-selector" onchange="main(this.value)" class="form-control form-control"></select>
+        </div>
+        <div>&nbsp or &nbsp</div>
+        <div>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="file-upload"
+                       onChange="main(this.files[0]);this.value=''">
+                <div class="custom-file-label">upload your own</div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div id="regs-panel" class="card">
+    <div class="card-header">
+        <h5 class="float-left">Regs</h5>
+        <div class="float-right">
+            <input type="radio" name="reg-radix" id="reg-radix-hex" value="16" checked
+                   onchange="RegisterUtils.changeRadix(this.value)">
+            <label for="reg-radix-hex">Hex</label>
+
+            <input type="radio" name="reg-radix" id="reg-radix-dec" value="10"
+                   onchange="RegisterUtils.changeRadix(this.value)">
+            <label for="reg-radix-dec">Dec</label>
+
+            <input type="radio" name="reg-radix" id="reg-radix-bin" value="2"
+                   onchange="RegisterUtils.changeRadix(this.value)">
+            <label for="reg-radix-bin">Bin</label>
+        </div>
+    </div>
+
+
+    <div class="card-body">
+        <h6>Special Registers</h6>
+        <pre id="special-int-regs" class="reg-lines"></pre>
+        <h6>General Registers</h6>
+        <pre id="general-regs" class="reg-lines"></pre>
+        <h6>Special Float Registers</h6>
+        <pre id="special-float-regs" class="reg-lines"></pre>
+        <h6>Single Precision</h6>
+        <pre id="float-regs" class="reg-lines"></pre>
+        <h6>Double Precision</h6>
+        <pre id="double-regs" class="reg-lines"></pre>
+    </div>
+</div>
+
+<div id="text-panel" class="card">
+    <div class="card-header">
+        <h5 class="float-left">Text Segment</h5>
+        <div class="float-right">
+            <input id="toggle-kernel-text" type="checkbox" checked
+                   onchange="InstructionUtils.toggleKernelText(this.checked)">
+            <label for="toggle-kernel-text"> Kernel text </label>
+
+            &nbsp
+
+            <input id="toggle-instruction-value" type="checkbox"
+                   onchange="InstructionUtils.toggleBinary(this.checked)">
+            <label for="toggle-instruction-value"> Instruction value </label>
+
+            &nbsp
+
+            <input id="toggle-comment" type="checkbox" checked
+                   onchange="InstructionUtils.toggleSourceCode(this.checked)">
+            <label for="toggle-comment"> Source code </label>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div id="user-text-container">
+            <pre class="segment-title">User Text Segment</pre>
+            <pre id="user-text-content" title="Click to toggle breakpoint"></pre>
+        </div>
+        <div id="kernel-text-container">
+            <pre class="segment-title">Kernel Text Segment</pre>
+            <pre id
