@@ -14,15 +14,12 @@
     <link rel="stylesheet" type="text/css" href="css/xcode.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <title>JsSpim - Online MIPS32 Simulator Based on Spim</title>
-
 </head>
 <body>
 
 <nav class="navbar navbar-light bg-light" id="toolbar">
     <div class="form-inline">
-        <div>Please choose a <a href="https://github.com/sehamada/AssemblySimulator/blob/develop/Tests">MIPS
-            assembly file</a>: &nbsp
-        </div>
+        <div>Please choose a MIPS assembly file from the server directory: &nbsp</div>
         <div>
             <select id="file-selector" onchange="main(this.value)" class="form-control form-control"></select>
         </div>
@@ -54,7 +51,6 @@
             <label for="reg-radix-bin">Bin</label>
         </div>
     </div>
-
 
     <div class="card-body">
         <h6>Special Registers</h6>
@@ -102,7 +98,6 @@
             <pre id="kernel-text-content" title="Click to toggle breakpoint"></pre>
         </div>
     </div>
-
 
     <div class="card-footer">
         <div class="form-inline float-left" id="execution-fieldset">
@@ -159,8 +154,6 @@
             <pre id="kernel-data-content"></pre>
         </div>
     </div>
-
-
 </div>
 
 <div id="stack-panel" class="card">
@@ -192,6 +185,7 @@
     <h5 class="card-header">Log</h5>
     <pre id="log-content" class="card-body"></pre>
 </div>
+
 <script type='text/javascript'>
     const Elements = Object.freeze({
         output: document.getElementById('output-content'),
@@ -214,6 +208,45 @@
         floatReg: document.getElementById('float-regs'),
         doubleReg: document.getElementById('double-regs'),
     });
+
+    // Fetch file list from server and populate file selector
+    async function fetchFileList() {
+        try {
+            const response = await fetch('/get-file-list'); // Replace with actual endpoint
+            const files = await response.json();
+            const fileSelector = document.getElementById('file-selector');
+            files.forEach(file => {
+                let option = document.createElement('option');
+                option.value = file;
+                option.text = file;
+                fileSelector.add(option);
+            });
+        } catch (error) {
+            console.error('Error fetching file list:', error);
+        }
+    }
+
+    // Load selected file's content into Text Segment
+    async function main(selectedFile) {
+        if (typeof selectedFile === 'string') {
+            try {
+                const response = await fetch(`/load-file?name=${selectedFile}`); // Replace with actual endpoint
+                const fileContent = await response.text();
+                Elements.userTextContent.textContent = fileContent;
+            } catch (error) {
+                console.error('Error loading file content:', error);
+            }
+        } else if (selectedFile instanceof File) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                Elements.userTextContent.textContent = event.target.result;
+            };
+            reader.readAsText(selectedFile);
+        }
+    }
+
+    // Call fetchFileList to populate the file selector when the page loads
+    fetchFileList();
 </script>
 
 <script type='text/javascript' src="js/index.js"></script>
